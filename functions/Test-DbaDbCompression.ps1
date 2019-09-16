@@ -154,6 +154,7 @@ function Test-DbaDbCompression {
         [string]$Rank = 'TotalPages',
         [ValidateSet('Partition', 'Index', 'Table')]
         [string]$FilterBy = 'Partition',
+        [string]$TableFilter,
         [switch]$EnableException
     )
 
@@ -166,6 +167,10 @@ function Test-DbaDbCompression {
 
         if ($Table) {
             $sqlTableWhere = "AND t.name IN ('$($Table -join "','")')"
+        }
+
+        if ($TableFilter) {
+            $sqlTableFilterWhere = "AND t.name Like ('$TableFilter')"
         }
 
         if ($ResultSize) {
@@ -218,6 +223,7 @@ function Test-DbaDbCompression {
                         AND p.rows > 0
                         $sqlSchemaWhere
                         $sqlTableWhere
+                        $sqlTableFilterWhere
                     GROUP BY
                         $groupBySQL
                     ORDER BY
@@ -365,6 +371,7 @@ WHERE OBJECTPROPERTY(t.object_id, 'IsUserTable') = 1
     AND p.rows > 0
     $sqlSchemaWhere
     $sqlTableWhere
+    $sqlTableFilterWhere
 ORDER BY [TableName] ASC;
 
 $sqlRestrict
